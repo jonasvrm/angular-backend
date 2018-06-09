@@ -1,0 +1,23 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+/* Change font awesome icon color - on hover */
+
+/* Trashcan -> red */
+.fa-trash-alt:hover, .fa-trash-alt:focus {
+    transition: color 0.3s ease;
+    color: red;
+    text-decoration: none;
+}
+
+/* Edit icon -> yellow */
+.fa-pencil-alt:hover, .fa-pencil-alt:focus {
+    transition: color 0.3s ease;
+    color: blue;
+    text-decoration: none;
+}
+
+.top-buffer {
+    margin-top: 15px;
+}
