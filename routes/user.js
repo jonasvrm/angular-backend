@@ -17,18 +17,20 @@ router.post('/register', function(req, res, next) {
             return res.json(JSON.stringify(user)); 
         }       
     })(req, res, next);
-  });
+});
 
     
 /* POST Attempt sign in */
-// router.post('/login', passport.authenticate(
-//     'local.signin',
-//     {
-//         successRedirect: __manageUrl + '/user/profile',
-//         failureRedirect: __manageUrl + '/user/signin',
-//         failureFlash: true
-//     }
-// ));
+router.post('/login', function(req, res, next) {
+    passport.authenticate('local.signin', function(err, user) {
+        if (err) { 
+            res.json(JSON.stringify(err));
+        }
+        if (user) { 
+            return res.json(JSON.stringify(user)); 
+        }       
+    })(req, res, next);
+});
 
 /* GET logout. */
 router.get('/logout', function (req, res, next) {
@@ -38,7 +40,7 @@ router.get('/logout', function (req, res, next) {
 
 /* GET profile page. */
 router.get('/profile', function (req, res, next) {
-
+    return res.json(req.user);
 });
 
 /* GET all users */
@@ -50,7 +52,7 @@ router.get('/all', function (req, res, next) {
             userArray.push(user);
         });
     
-        res.render('user/all', { title: 'All users', users: userArray, csrfToken: req.csrfToken() });  
+        res.json(JSON.stringify(userArray));
     });
 });
 
@@ -62,7 +64,7 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect("signin");
+    return res.status(401).json({ message: "Invalid request." });
 }
 
 function notLoggedIn(req, res, next) {
