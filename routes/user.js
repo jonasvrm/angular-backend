@@ -1,6 +1,8 @@
 var express = require('express');
+var config = require('../config/config');
 var router = express.Router();
 var csrf = require('csurf');
+var jwt = require('jsonwebtoken');
 var passport = require('passport');
 var User = require('../models/user');
 
@@ -14,7 +16,8 @@ router.post('/register', function(req, res, next) {
             res.json(JSON.stringify(err));
         }
         if (user) { 
-            return res.json(JSON.stringify(user)); 
+            const token = jwt.sign(JSON.parse(JSON.stringify(user)), config.auth.jwtsecret);
+            return res.json({ user, token }); 
         }       
     })(req, res, next);
 });
@@ -27,7 +30,8 @@ router.post('/login', function(req, res, next) {
             res.json(JSON.stringify(err));
         }
         if (user) { 
-            return res.json(JSON.stringify(user)); 
+            const token = jwt.sign(JSON.parse(JSON.stringify(user)), config.auth.jwtsecret);
+            return res.json({ user, token, expiration: 100000 }); 
         }       
     })(req, res, next);
 });
@@ -52,8 +56,22 @@ router.get('/all', function (req, res, next) {
             userArray.push(user);
         });
     
-        res.json(JSON.stringify(userArray));
+        res.json(userArray);
     });
+});
+
+/* DELETE one product */
+router.delete('/delete/:id', async (req, res, next) => {
+    var message;
+
+    try {
+        await User.findByIdAndRemove(req.params.id);
+        message = "Success";
+    } catch (error) {
+        message = "Error";
+    }  
+
+    res.json({ message: message });  
 });
 
 module.exports = router;
