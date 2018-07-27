@@ -60,8 +60,8 @@ router.get('/all', function (req, res, next) {
     });
 });
 
-/* DELETE one product */
-router.delete('/delete/:id', async (req, res, next) => {
+/* DELETE one user */
+router.delete('/:id', async (req, res, next) => {
     var message;
 
     try {
@@ -71,7 +71,41 @@ router.delete('/delete/:id', async (req, res, next) => {
         message = "Error";
     }  
 
-    res.json({ message: message });  
+    res.status(200).json(message);  
+});
+
+/* GET one user */
+router.get('/:id', async (req, res, next) => {
+    try {
+        var user = await User.findById(req.params.id);
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching the user" });
+    }  
+});
+
+/* UPDATE the user */
+router.patch('/:id', async (req, res, next) => {
+    var message;
+    
+    try {
+        //load old product
+        var user = await User.findById(req.params.id);
+
+        //apply new values
+        user.firstname = req.body.firstname;
+        user.lastname = req.body.lastname;
+
+        //Save new category
+        await user.save();
+
+        message = "success";
+    } catch (error) {
+
+        message = "error";
+    }
+
+    res.status(200).json(message);
 });
 
 module.exports = router;
