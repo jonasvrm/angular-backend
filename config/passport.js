@@ -88,19 +88,57 @@ passport.use('local.signin', new localStrategy({
     });
 }));
 
-passport.use(new JWTStrategy({
+passport.use('all', new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey   : config.auth.jwtsecret
 },
 function (jwtPayload, cb) {
-
     //find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
-    return UserModel.findOneById(jwtPayload.id)
-        .then(user => {
-            return cb(null, user);
-        })
-        .catch(err => {
-            return cb(err);
-        });
+    return User.findById(jwtPayload._id)
+    .then(user => {          
+        return cb(null, user);
+    })
+    .catch(err => {
+        return cb(err);
+    });
 }
 ));
+
+passport.use('global-admin', new JWTStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey   : config.auth.jwtsecret
+},
+function (jwtPayload, cb) {
+    //find the user in db if needed.
+    return User.findOne({
+        _id     : jwtPayload._id,
+        role    : 'global_admin'
+    }).then(user => {
+        return cb(null, user);
+    })
+    .catch(err => {
+        return cb(err);
+    });
+}
+));
+
+
+// passport.use('global-admin', new JWTStrategy({
+//     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+//     secretOrKey   : config.auth.jwtsecret
+// },
+// async (jwtPayload, cb) => {
+//     try {
+//         //find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
+//         var user = await User.findById(jwtPayload._id)
+
+//         if(user.role == "global_admin"){
+//             return cb(null, user);
+//         }else{
+//             return cb(Error("Not authorized"));
+//         }
+//     } catch (error) {
+//         return cb(error);
+//     }
+// }
+// ));

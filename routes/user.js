@@ -48,16 +48,11 @@ router.get('/profile', function (req, res, next) {
 });
 
 /* GET all users */
-router.get('/all', function (req, res, next) {
-	User.find({}, function(err, users) {
-        var userArray = [];
+router.get('/all', passport.authenticate('global-admin', {session: false}), async (req, res, next) => {
+
+    var users = await User.find({}, { password: 0 });
     
-        users.forEach(function(user) {
-            userArray.push(user);
-        });
-    
-        res.json(userArray);
-    });
+    res.json(users);
 });
 
 /* DELETE one user */
@@ -75,9 +70,9 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 /* GET one user */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', passport.authenticate('all', {session: false}), async (req, res, next) => {
     try {
-        var user = await User.findById(req.params.id);
+        var user = await User.findById(req.params.id, { password: 0 });
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: "Error fetching the user" });
@@ -109,20 +104,3 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 module.exports = router;
-
-
-
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    return res.status(401).json({ message: "Invalid request." });
-}
-
-function notLoggedIn(req, res, next) {
-    if (!req.isAuthenticated()) {       
-        res.redirect("signin");
-    }
-    return next();
-    
-}
